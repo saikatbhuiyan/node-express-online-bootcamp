@@ -5,6 +5,6 @@ const { getCourses } = require('../controllers/courseControllers');
 // We merging the url param
 const router = express.Router({ mergeParams: true });
 
-router.route(getCourses);
+router.route('/').get(getCourses);
 
 module.exports = router;
