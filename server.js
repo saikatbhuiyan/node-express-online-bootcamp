@@ -7,11 +7,12 @@ const errorHandler = require('./middleware/error');
 //Load env vars
 dotenv.config({ path: './config/config.env' });
 
+// Connect database
 connectDB();
 
 // router
 const bootcamps = require('./route/bootcampsRotue');
-const e = require('express');
+const courses = require('./route/coursesRoute');
 
 const app = express();
 
@@ -25,6 +26,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // mount routers
 app.use('/api/v1/bootcamps', bootcamps);
+app.use('/api/v1/courses', courses);
 
 // error handler
 app.use(errorHandler);
