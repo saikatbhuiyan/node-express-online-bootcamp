@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // mount routers
 app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses);
-app.use('/api/v1/register', register);
+app.use('/api/v1/auth', register);
 
 // error handler
 app.use(errorHandler);
