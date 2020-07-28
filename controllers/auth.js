@@ -85,8 +85,8 @@ const sendTokenResponse = (user, statusCode, res) => {
 exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user);
 
-  res.state(200).json({
+  res.status(200).json({
     success: true,
-    data: userInfo,
+    data: user,
   });
 });
