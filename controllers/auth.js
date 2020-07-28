@@ -2,6 +2,7 @@ const path = require('path');
 const ErrorResponse = require('../utlis/errorResponse');
 const asyncHandler = require('../async');
 const User = require('../models/User');
+const { userInfo } = require('os');
 
 // @desc      Register user
 // @route     POST /api/v1/auth/register
@@ -36,7 +37,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   }
 
   // Check for user
-  const user = await user.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password');
 
   if (!user) {
     return next(new ErrorResponse('Invalid credentials', 400));
@@ -77,3 +78,15 @@ const sendTokenResponse = (user, statusCode, res) => {
     token,
   });
 };
+
+// @desc      Get current logged in user
+// @route     POST /api/v1/auth/me
+// @access    Private
+exports.getMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user);
+
+  res.state(200).json({
+    success: true,
+    data: userInfo,
+  });
+});
