@@ -3,6 +3,7 @@ const ErrorResponse = require('../utlis/errorResponse');
 const asyncHandler = require('../async');
 const User = require('../models/User');
 const { userInfo } = require('os');
+const sendEmail = require('../utlis/sendEmail');
 
 // @desc      Register user
 // @route     POST /api/v1/auth/register
@@ -83,6 +84,31 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const resetToken = user.getResetPasswordToken();
 
   // console.log(resetToken);
+
+  // Create reset url
+  const resetUrl = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/forgotpassword/${resetToken}`;
+
+  const message = `You are receiving this email: \n\n ${resetUrl}`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'Password reset token',
+      message,
+    });
+    res.status(200).json({
+      success: true,
+      data: 'Email Sent',
+    });
+  } catch (error) {
+    console.log(error);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+    next(new ErrorResponse('Email could not be sent', 500));
+  }
 
   await user.save({ validateBeforeSave: false });
 
