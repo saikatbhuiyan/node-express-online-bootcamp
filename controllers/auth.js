@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const path = require('path');
 const ErrorResponse = require('../utlis/errorResponse');
 const asyncHandler = require('../async');
@@ -88,9 +89,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   // Create reset url
   const resetUrl = `${req.protocol}://${req.get(
     'host'
-  )}/api/v1/forgotpassword/${resetToken}`;
+  )}/api/v1/auth/forgotpassword/${resetToken}`;
 
-  const message = `You are receiving this email: \n\n ${resetUrl}`;
+  const message = `You are receiving this email: \n\n${resetUrl}`;
 
   try {
     await sendEmail({
@@ -116,6 +117,39 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     success: true,
     data: user,
   });
+});
+
+// @desc      Reset password
+// @route     POST /api/v1/resetpassword/:resettoken
+// @access    Public
+exports.resetPassword = asyncHandler(async (req, res, next) => {
+  // Get hashed token
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(req.params.resettoken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now },
+  });
+
+  if (!user) {
+    return next(new ErrorResponse('There is no user with this token.'));
+  }
+
+  // Set new password
+  if (req.body.password != req.body.password2) {
+    return next(new ErrorResponse('Password did not match.'));
+  }
+
+  user.password = req.body.password;
+
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  sendTokenResponse(user, 200, res);
 });
 
 // Get token from model, create cookie and send response
