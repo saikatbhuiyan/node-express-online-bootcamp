@@ -60,10 +60,41 @@ exports.login = asyncHandler(async (req, res, next) => {
 });
 
 // @desc      Get current logged in user
-// @route     POST /api/v1/auth/me
+// @route     Get /api/v1/auth/me
 // @access    Private
 exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user);
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+// @desc      Update the user
+// @route     Put /api/v1/auth/update
+// @access    Private
+exports.updateMe = asyncHandler(async (req, res, next) => {
+  let fieldsToUpdate = {};
+  if (req.body.email && req.body.name) {
+    fieldsToUpdate = {
+      name: req.body.name,
+      email: req.body.email,
+    };
+  } else if (req.body.name) {
+    fieldsToUpdate = {
+      name: req.body.name,
+    };
+  } else {
+    fieldsToUpdate = {
+      email: req.body.email,
+    };
+  }
+
+  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(200).json({
     success: true,
@@ -128,10 +159,9 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
     .createHash('sha256')
     .update(req.params.resettoken)
     .digest('hex');
-
   const user = await User.findOne({
     resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now },
+    resetPasswordExpire: { $gt: Date.now() },
   });
 
   if (!user) {
@@ -139,7 +169,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   }
 
   // Set new password
-  if (req.body.password != req.body.password2) {
+  if (req.body.password != req.body.password1) {
     return next(new ErrorResponse('Password did not match.'));
   }
 
