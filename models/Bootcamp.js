@@ -142,7 +142,7 @@ BootcampSchema.pre('remove', async function (next) {
   next();
 });
 
-// Reverse populate with virtuals
+// Reverse populate with s
 BootcampSchema.virtual('courses', {
   ref: 'Course',
   localField: '_id',
