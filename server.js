@@ -16,6 +16,7 @@ connectDB();
 // router
 const bootcamps = require('./route/bootcampsRotue');
 const courses = require('./route/coursesRoute');
+const reviews = require('./route/review');
 const register = require('./route/auth');
 const users = require('./route/users');
 
@@ -41,6 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // mount routers
 app.use('/api/v1/bootcamps', bootcamps);
 app.use('/api/v1/courses', courses);
+app.use('/api/v1/reviews', reviews);
 app.use('/api/v1/auth', register);
 app.use('/api/v1/users', users);
 
