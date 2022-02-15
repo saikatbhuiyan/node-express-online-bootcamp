@@ -1,4 +1,4 @@
-# API for online bootcamp using Node.js express
+## online bootcamp backend using Node.js, express and mongodb
 
 ### Follow this command
 
